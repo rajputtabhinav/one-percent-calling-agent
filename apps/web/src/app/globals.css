@@ -1,0 +1,267 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Night-console palette ─────────────────────────────────────────────── */
+:root {
+  --background: #0a0b0e;
+  --foreground: #edeef2;
+  --card: rgba(255, 255, 255, 0.028);
+  --card-solid: #111319;
+  --card-foreground: #edeef2;
+  --popover: #14161d;
+  --popover-foreground: #edeef2;
+  --primary: #f5a524; /* filament amber — live / voice */
+  --primary-foreground: #1a1205;
+  --secondary: rgba(255, 255, 255, 0.06);
+  --secondary-foreground: #d6d9e0;
+  --muted: rgba(255, 255, 255, 0.045);
+  --muted-foreground: #8a8f9d;
+  --accent: #2dd4bf; /* AI teal — system / model signals */
+  --accent-foreground: #03201c;
+  --destructive: #f4445e;
+  --destructive-foreground: #ffe9ec;
+  --border: rgba(255, 255, 255, 0.075);
+  --input: rgba(255, 255, 255, 0.09);
+  --ring: rgba(245, 165, 36, 0.55);
+  --chart-1: #f5a524;
+  --chart-2: #2dd4bf;
+  --chart-3: #8b7cf6;
+  --chart-4: #64748b;
+  --chart-5: #f4445e;
+  --radius: 0.85rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-solid: var(--card-solid);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Mono', monospace;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: 'ss01';
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* layered atmosphere: faint filament glow + cool wash + vignette.
+   Lives on a fixed pseudo-element (not background-attachment: fixed,
+   which forces full repaints on scroll/capture). */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(1100px 500px at 12% -8%, rgba(245, 165, 36, 0.055), transparent 60%),
+    radial-gradient(900px 600px at 105% 110%, rgba(45, 212, 191, 0.05), transparent 55%),
+    radial-gradient(1400px 900px at 50% 40%, rgba(20, 23, 31, 0.85), transparent 100%);
+}
+
+/* film grain — keeps large dark surfaces from banding */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.028'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: rgba(245, 165, 36, 0.3);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  border: 2px solid var(--background);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ── Console idioms ────────────────────────────────────────────────────── */
+
+/* small uppercase section label */
+.console-label {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+.font-mono-nums {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* glass card surface */
+.surface {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.018));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* breathing live dot */
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 165, 36, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(245, 165, 36, 0);
+  }
+}
+.live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--primary);
+  animation: breathe 1.8s ease-in-out infinite;
+}
+
+/* speaking bars (equalizer) */
+@keyframes eq {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+.eq-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 14px;
+}
+.eq-bars span {
+  width: 2.5px;
+  height: 100%;
+  border-radius: 2px;
+  background: currentColor;
+  animation: eq 0.9s ease-in-out infinite;
+  transform-origin: bottom;
+}
+.eq-bars span:nth-child(2) {
+  animation-delay: 0.18s;
+}
+.eq-bars span:nth-child(3) {
+  animation-delay: 0.36s;
+}
+.eq-bars span:nth-child(4) {
+  animation-delay: 0.1s;
+}
+
+/* staggered page-load rise */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise {
+  animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.rise-1 {
+  animation-delay: 0.04s;
+}
+.rise-2 {
+  animation-delay: 0.1s;
+}
+.rise-3 {
+  animation-delay: 0.16s;
+}
+.rise-4 {
+  animation-delay: 0.22s;
+}
+.rise-5 {
+  animation-delay: 0.28s;
+}
+
+/* transcript search highlight */
+mark {
+  background: rgba(245, 165, 36, 0.28);
+  color: var(--foreground);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* thin filament divider with a hot center */
+.filament {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(245, 165, 36, 0.5) 50%,
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .live-dot,
+  .eq-bars span {
+    animation: none;
+  }
+}

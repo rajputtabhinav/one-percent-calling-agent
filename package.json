@@ -1,0 +1,26 @@
+{
+  "name": "onepct",
+  "version": "1.0.0",
+  "private": true,
+  "description": "1% — Digital Human AI Calling Agent (single-owner personal platform)",
+  "workspaces": [
+    "packages/shared",
+    "apps/api",
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c yellow,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "build": "npm run build -w apps/api && npm run build -w apps/web",
+    "typecheck": "npm run typecheck -ws --if-present",
+    "test": "npm run test -w apps/api",
+    "migrate": "npm run migrate -w apps/api"
+  },
+  "engines": {
+    "node": ">=20.10"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

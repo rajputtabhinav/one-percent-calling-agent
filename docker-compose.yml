@@ -1,0 +1,84 @@
+name: onepct
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-onepct}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-onepct}
+      POSTGRES_DB: ${POSTGRES_DB:-onepct}
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-onepct} -d ${POSTGRES_DB:-onepct}']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - '127.0.0.1:5432:5432'
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - '127.0.0.1:6379:6379'
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:4000}
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
+      DATABASE_URL: postgres://${POSTGRES_USER:-onepct}:${POSTGRES_PASSWORD:-onepct}@db:5432/${POSTGRES_DB:-onepct}
+      REDIS_URL: redis://redis:6379
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
+      MASTER_KEY: ${MASTER_KEY:?set MASTER_KEY in .env}
+      STORAGE_DIR: /data
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      EXOTEL_SID: ${EXOTEL_SID:-}
+      EXOTEL_API_KEY: ${EXOTEL_API_KEY:-}
+      EXOTEL_API_TOKEN: ${EXOTEL_API_TOKEN:-}
+      EXOTEL_SUBDOMAIN: ${EXOTEL_SUBDOMAIN:-api.exotel.com}
+    volumes:
+      - ./storage:/data
+    ports:
+      - '4000:4000'
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        API_ORIGIN: http://api:4000
+        # What the BROWSER uses to reach the API (dashboard WebSocket).
+        # Change to your public API URL when hosting remotely.
+        NEXT_PUBLIC_API_ORIGIN: ${NEXT_PUBLIC_API_ORIGIN:-http://localhost:4000}
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - '3000:3000'
+
+volumes:
+  dbdata:
+  redisdata:
